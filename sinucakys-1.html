@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SINUCAKYS — Gestão Empresarial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F6F8F6; --surface:#FFFFFF; --surface-2:#EEF2EF; --border:#DCE4DE;
+    --text:#16241C; --text-muted:#5B6B60;
+    --primary:#1B4332; --primary-2:#2D6A4F; --primary-soft:#E5F0EA;
+    --accent:#A9824C;
+    --danger:#B3261E; --danger-soft:#FBEAE9;
+    --warning:#8A5A00; --warning-soft:#FCF1DC;
+    --success:#1B7A43; --success-soft:#E4F3E9;
+    --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+    --shadow:0 1px 2px rgba(20,30,24,.06), 0 6px 20px -8px rgba(20,30,24,.12);
+    --font-head:'Sora',system-ui,-apple-system,sans-serif;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F1512; --surface:#161F19; --surface-2:#1D2921; --border:#2A3830;
+      --text:#E7EFE9; --text-muted:#93A69A;
+      --primary:#57B788; --primary-2:#78CBA2; --primary-soft:#1B2E24;
+      --accent:#C9A868;
+      --danger:#E5726A; --danger-soft:#341D1B;
+      --warning:#E0B94C; --warning-soft:#332912;
+      --success:#57B788; --success-soft:#17281F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px -8px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F1512; --surface:#161F19; --surface-2:#1D2921; --border:#2A3830;
+    --text:#E7EFE9; --text-muted:#93A69A;
+    --primary:#57B788; --primary-2:#78CBA2; --primary-soft:#1B2E24;
+    --accent:#C9A868;
+    --danger:#E5726A; --danger-soft:#341D1B;
+    --warning:#E0B94C; --warning-soft:#332912;
+    --success:#57B788; --success-soft:#17281F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  h1,h2,h3,.font-head{font-family:var(--font-head);}
+  button{font-family:inherit;}
+  a{color:inherit;}
+  ::selection{background:var(--primary-soft);}
+  .scroll-x{overflow-x:auto; max-width:100%;}
+  table{border-collapse:collapse; width:100%; min-width:560px;}
+  th,td{text-align:left; padding:10px 12px; font-size:13.5px; border-bottom:1px solid var(--border); white-space:nowrap;}
+  th{color:var(--text-muted); font-weight:600; font-size:12px; text-transform:none; letter-spacing:.01em;}
+  tr:last-child td{border-bottom:none;}
+  input,select,textarea{
+    width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--surface); color:var(--text); font-size:14px; font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--primary-2); outline-offset:1px; border-color:var(--primary-2);}
+  label{font-size:12.5px; color:var(--text-muted); display:block; margin-bottom:5px; font-weight:500;}
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13.5px;
+    font-weight:600; cursor:pointer; white-space:nowrap;
+  }
+  .btn:hover{background:var(--surface-2);}
+  .btn:focus-visible{outline:2px solid var(--primary-2); outline-offset:2px;}
+  .btn-primary{background:var(--primary); border-color:var(--primary); color:#fff;}
+  .btn-primary:hover{background:var(--primary-2); border-color:var(--primary-2);}
+  .btn-ghost{background:transparent; border-color:transparent;}
+  .btn-ghost:hover{background:var(--surface-2);}
+  .btn-danger{color:var(--danger); border-color:var(--danger-soft); background:var(--danger-soft);}
+  .btn-sm{padding:6px 10px; font-size:12.5px;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .icon{width:18px; height:18px; flex-shrink:0;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow);}
+  .pill{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:600;}
+  .pill-success{background:var(--success-soft); color:var(--success);}
+  .pill-warning{background:var(--warning-soft); color:var(--warning);}
+  .pill-danger{background:var(--danger-soft); color:var(--danger);}
+  .pill-muted{background:var(--surface-2); color:var(--text-muted);}
+
+  /* shell layout */
+  #shell{display:flex; min-height:100vh;}
+  #sidebar{
+    width:236px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:20px 18px 16px;}
+  .brand-mark{width:34px; height:34px; border-radius:10px; background:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .brand-mark svg{width:19px; height:19px; stroke:#fff;}
+  .brand-name{font-family:var(--font-head); font-weight:700; font-size:16.5px; letter-spacing:.01em; line-height:1.1;}
+  .brand-sub{font-size:10.5px; color:var(--text-muted); margin-top:1px;}
+  nav.sidenav{flex:1; overflow-y:auto; padding:6px 12px;}
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:9px 12px; border-radius:var(--radius-sm);
+    color:var(--text-muted); font-size:13.5px; font-weight:600; cursor:pointer; margin-bottom:2px;
+  }
+  .nav-item:hover{background:var(--surface-2); color:var(--text);}
+  .nav-item.active{background:var(--primary-soft); color:var(--primary);}
+  .nav-group-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); opacity:.7; padding:14px 12px 6px;}
+  .sidebar-foot{padding:14px; border-top:1px solid var(--border);}
+  .company-chip{display:flex; align-items:center; gap:9px; padding:8px 9px; border-radius:var(--radius-sm); background:var(--surface-2);}
+  .company-chip .dot{width:8px; height:8px; border-radius:99px; background:var(--success); flex-shrink:0;}
+  #main{flex:1; min-width:0; display:flex; flex-direction:column;}
+  #topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 24px; border-bottom:1px solid var(--border); background:var(--bg);
+    position:sticky; top:0; z-index:10;
+  }
+  #content{padding:22px 24px 90px; flex:1;}
+  .page-head{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; flex-wrap:wrap;}
+  .page-title{font-family:var(--font-head); font-size:21px; font-weight:700; margin:0;}
+  .page-desc{color:var(--text-muted); font-size:13px; margin-top:3px;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px;}
+  .kpi{padding:16px 18px;}
+  .kpi-label{font-size:12px; color:var(--text-muted); font-weight:600;}
+  .kpi-value{font-family:var(--font-head); font-size:23px; font-weight:700; margin-top:6px;}
+  .kpi-delta{font-size:11.5px; margin-top:5px; display:flex; align-items:center; gap:4px;}
+  .grid-2{display:grid; grid-template-columns:1.3fr 1fr; gap:14px;}
+  .section-title{font-family:var(--font-head); font-weight:700; font-size:14.5px; margin:0;}
+  .card-pad{padding:16px 18px;}
+  .card-head{display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border);}
+  .empty{padding:32px 18px; text-align:center; color:var(--text-muted); font-size:13.5px;}
+  .empty svg{width:30px; height:30px; margin-bottom:8px; opacity:.5;}
+
+  .toolbar{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .search-box{position:relative; flex:1; min-width:180px; max-width:320px;}
+  .search-box svg{position:absolute; left:10px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-muted);}
+  .search-box input{padding-left:32px;}
+
+  /* modal */
+  #modal-root{position:fixed; inset:0; z-index:100; display:none; align-items:flex-start; justify-content:center; padding:5vh 16px;}
+  #modal-root.open{display:flex;}
+  .modal-backdrop{position:absolute; inset:0; background:rgba(10,16,12,.45); backdrop-filter:blur(1px);}
+  .modal-box{position:relative; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); width:100%; max-width:520px; max-height:88vh; display:flex; flex-direction:column;}
+  .modal-box.wide{max-width:680px;}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border);}
+  .modal-body{padding:18px 20px; overflow-y:auto;}
+  .modal-foot{padding:14px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:9px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;}
+  .field{margin-bottom:12px;}
+
+  .line-item{display:grid; grid-template-columns:2.2fr .8fr .9fr auto; gap:8px; align-items:end; margin-bottom:8px;}
+  .line-total-row{display:flex; justify-content:flex-end; gap:22px; padding-top:10px; margin-top:6px; border-top:1px solid var(--border);}
+  .line-total-row .amt{font-family:var(--font-head); font-weight:700; font-size:16px;}
+
+  .toast-wrap{position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px;}
+  .toast{background:var(--text); color:var(--bg); padding:10px 16px; border-radius:var(--radius-sm); font-size:13px; box-shadow:var(--shadow); max-width:300px;}
+  .toast.warn{background:var(--warning); color:#1a1200;}
+  .toast.err{background:var(--danger); color:#fff;}
+
+  /* bottom nav mobile */
+  #bottomnav{display:none;}
+  @media (max-width: 860px){
+    #sidebar{display:none;}
+    #content{padding:16px 14px 96px;}
+    #topbar{padding:12px 14px;}
+    .kpi-grid{grid-template-columns:1fr 1fr;}
+    .grid-2{grid-template-columns:1fr;}
+    .field-row{grid-template-columns:1fr;}
+    .line-item{grid-template-columns:1fr; }
+    #bottomnav{
+      display:flex; position:fixed; bottom:0; left:0; right:0; z-index:60;
+      background:var(--surface); border-top:1px solid var(--border);
+      padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    }
+    .bn-item{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; color:var(--text-muted); font-size:10px; font-weight:600; border-radius:10px;}
+    .bn-item.active{color:var(--primary);}
+    .bn-item svg{width:20px; height:20px;}
+  }
+  @media (min-width: 861px){
+    #menu-toggle{display:none;}
+  }
+
+  /* login */
+  #login-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:
+     radial-gradient(700px 400px at 15% -10%, var(--primary-soft), transparent),
+     var(--bg);}
+  .login-card{width:100%; max-width:380px;}
+  .login-hero{text-align:left; margin-bottom:26px;}
+
+  /* invoice print */
+  .invoice-sheet{background:#fff; color:#16241C; padding:28px; border-radius:var(--radius-md); font-size:13px;}
+  @media print{
+    body *{visibility:hidden;}
+    #print-area, #print-area *{visibility:visible;}
+    #print-area{position:absolute; top:0; left:0; width:100%;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-root"><div class="modal-backdrop" onclick="App.closeModal()"></div><div id="modal-box-wrap"></div></div>
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  logo:'<path d="M6 12h5l-2 5 9-9h-5l2-5-9 9Z" stroke-linejoin="round"/>',
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  cart:'<circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="20" r="1.4" fill="currentColor" stroke="none"/><path d="M2.5 3h2.4l2.1 11.3a2 2 0 0 0 2 1.7h8.3a2 2 0 0 0 2-1.6l1.4-7.4H6.2"/>',
+  doc:'<path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v5h5"/>',
+  box:'<path d="M3.5 7.5 12 3l8.5 4.5V16.5L12 21l-8.5-4.5V7.5Z"/><path d="M3.7 7.6 12 12l8.3-4.4"/><path d="M12 12v9"/>',
+  users:'<circle cx="9" cy="8" r="3.2"/><path d="M2.8 19c.7-3.3 3.1-5 6.2-5s5.5 1.7 6.2 5"/><circle cx="17.5" cy="8.5" r="2.6"/><path d="M15.4 14.3c2.6.2 4.5 1.8 5.1 4.7"/>',
+  truck:'<rect x="2.5" y="7" width="11" height="9" rx="1"/><path d="M13.5 10.5H17l3.5 3.2V16h-7Z"/><circle cx="7" cy="18.3" r="1.6"/><circle cx="17.3" cy="18.3" r="1.6"/>',
+  bag:'<path d="M6.5 8V6.5a5.5 5.5 0 0 1 11 0V8"/><path d="M4.5 8h15l-1.1 12.2a1.5 1.5 0 0 1-1.5 1.3H7.1a1.5 1.5 0 0 1-1.5-1.3Z"/>',
+  wallet:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h11A2.5 2.5 0 0 1 19 7.5V8H5.5A2.5 2.5 0 0 1 3 5.5Z"/><path d="M3 8h15a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><circle cx="16.3" cy="13.5" r="1.4" fill="currentColor" stroke="none"/>',
+  chart:'<path d="M4 20V4"/><path d="M4 20h16"/><rect x="7" y="12" width="2.6" height="8"/><rect x="12" y="8" width="2.6" height="12"/><rect x="17" y="5" width="2.6" height="15"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1h-.2a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.2 8a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H8.9A1.7 1.7 0 0 0 9.9 2h.2a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.6 1Z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  edit:'<path d="M4 20h4l10.5-10.5a2 2 0 0 0 0-2.8l-1.2-1.2a2 2 0 0 0-2.8 0L4 16v4Z"/>',
+  trash:'<path d="M4 7h16"/><path d="M9 7V4.8A1.8 1.8 0 0 1 10.8 3h2.4A1.8 1.8 0 0 1 15 4.8V7"/><path d="M6 7l1 13a2 2 0 0 0 2 1.9h6a2 2 0 0 0 2-1.9l1-13"/>',
+  print:'<path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M6 15h12v6H6Z"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6"/>',
+  whatsapp:'<path d="M4 20l1.2-4.2A8 8 0 1 1 8.4 19Z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5"/>',
+  chevron:'<path d="m9 6 6 6-6 6"/>',
+  alert:'<path d="M12 3 2 21h20Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.2" fill="currentColor"/>',
+  check:'<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.4 2.4L16 10"/>',
+  up:'<path d="M6 15l6-6 6 6"/>',
+  down:'<path d="M6 9l6 6 6-6"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+  building:'<path d="M4 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M14 9h5a1 1 0 0 1 1 1v11"/><path d="M8 7h.01M11 7h.01M8 11h.01M11 11h.01M8 15h.01M11 15h.01"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="8" r="0.2" fill="currentColor"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 19a2 2 0 0 0 4 0"/>',
+};
+function icon(name, cls){ return '<svg class="icon '+(cls||'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>'; }
+
+/* ---------------- HELPERS ---------------- */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function kz(n){ n = Number(n)||0; return n.toLocaleString('pt-PT',{minimumFractionDigits:2, maximumFractionDigits:2}) + ' Kz'; }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(iso){ if(!iso) return '-'; const d=new Date(iso+'T00:00:00'); return d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'}); }
+function daysAgoISO(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+
+/* ---------------- STORAGE ---------------- */
+const STORAGE_KEY = 'sinucakys_demo_db_v1';
+function seedDB(){
+  const produtos = [
+    {id:uid(), nome:'Arroz Agulha 5kg', categoria:'Alimentação', unidade:'un', precoCompra:3200, precoVenda:4500, stock:42, stockMin:15},
+    {id:uid(), nome:'Óleo Alimentar 5L', categoria:'Alimentação', unidade:'un', precoCompra:5800, precoVenda:7900, stock:8, stockMin:10},
+    {id:uid(), nome:'Cimento 50kg', categoria:'Construção', unidade:'saco', precoCompra:4600, precoVenda:5900, stock:120, stockMin:30},
+    {id:uid(), nome:'Água Mineral 1.5L (pack 6)', categoria:'Bebidas', unidade:'pack', precoCompra:1500, precoVenda:2200, stock:60, stockMin:20},
+    {id:uid(), nome:'Detergente 1L', categoria:'Higiene', unidade:'un', precoCompra:900, precoVenda:1450, stock:5, stockMin:12},
+    {id:uid(), nome:'Serviço de Instalação', categoria:'Serviços', unidade:'serviço', precoCompra:0, precoVenda:15000, stock:9999, stockMin:0},
+  ];
+  const clientes = [
+    {id:uid(), nome:'Manuel dos Santos', nif:'003400123LA045', telefone:'923 111 222', email:'manuel.santos@mail.com', endereco:'Rua da Missão, 12', municipio:'Luanda', provincia:'Luanda', totalComprado:0, divida:0},
+    {id:uid(), nome:'Comercial Kianda, Lda', nif:'5401123456', telefone:'924 555 019', email:'geral@kianda.co.ao', endereco:'Talatona', municipio:'Talatona', provincia:'Luanda', totalComprado:0, divida:0},
+    {id:uid(), nome:'Isabel Cachimbombo', nif:'004521998LA012', telefone:'921 887 340', email:'', endereco:'Benfica', municipio:'Belas', provincia:'Luanda', totalComprado:0, divida:0},
+    {id:uid(), nome:'Cliente Balcão', nif:'999999999', telefone:'', email:'', endereco:'', municipio:'', provincia:'', totalComprado:0, divida:0},
+  ];
+  const fornecedores = [
+    {id:uid(), nome:'Distribuidora Cuca Norte', nif:'5401009988', telefone:'922 300 400', email:'vendas@cucanorte.ao', produtos:'Bebidas, Alimentação'},
+    {id:uid(), nome:'Cimangola Comercial', nif:'5401778812', telefone:'923 700 111', email:'comercial@cimangola.ao', produtos:'Construção'},
+  ];
+  const db = {
+    empresa:{nome:'Loja Boa Fé, Lda', nif:'5417003321', moeda:'AOA', municipio:'Luanda', provincia:'Luanda', telefone:'923 000 111', email:'geral@loja.ao'},
+    produtos, clientes, fornecedores,
+    vendas:[], facturas:[], compras:[],
+    caixa:{saldoInicial:50000, aberto:true, movimentos:[]},
+    contadores:{factura:0},
+    notificacoes:[],
+    route:'dashboard'
+  };
+  // seed some historic sales for the last 7 days so dashboard charts aren't empty
+  for(let i=6;i>=0;i--){
+    const dia = daysAgoISO(i);
+    const n = 1 + Math.floor(Math.random()*4);
+    for(let k=0;k<n;k++){
+      const prod = produtos[Math.floor(Math.random()*produtos.length)];
+      const cli = clientes[Math.floor(Math.random()*(clientes.length-1))];
+      const qty = 1+Math.floor(Math.random()*3);
+      const total = prod.precoVenda*qty;
+      const saleId = uid();
+      db.contadores.factura++;
+      const num = 'FT '+new Date().getFullYear()+'/'+String(db.contadores.factura).padStart(4,'0');
+      db.vendas.push({id:saleId, data:dia, clienteId:cli.id, itens:[{produtoId:prod.id, nome:prod.nome, qtd:qty, preco:prod.precoVenda}], total, pagamento:'Dinheiro', facturaNumero:num});
+      db.facturas.push({id:uid(), numero:num, data:dia, clienteId:cli.id, itens:[{nome:prod.nome, qtd:qty, preco:prod.precoVenda}], total, estado:'Paga'});
+      db.caixa.movimentos.push({id:uid(), data:dia, tipo:'entrada', categoria:'Venda', descricao:'Venda '+num, valor:total});
+      cli.totalComprado += total;
+    }
+  }
+  return db;
+}
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const parsed = JSON.parse(raw); if(parsed && parsed.produtos) return parsed; }
+  }catch(e){ console.error('Falha ao ler dados guardados', e); }
+  return seedDB();
+}
+function saveDB(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+  catch(e){ console.error('Falha ao guardar dados', e); toast('Não foi possível guardar localmente neste browser.', 'warn'); }
+}
+
+let DB = loadDB();
+let SESSION = false;
+try{ SESSION = sessionStorage.getItem('sinucakys_session') === '1'; }catch(e){}
+
+/* ---------------- TOASTS ---------------- */
+function toast(msg, kind){
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast'+(kind==='warn'?' warn':kind==='err'?' err':'');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+
+/* ---------------- APP OBJECT ---------------- */
+const App = {
+
+  nav(route){ DB.route = route; this.closeModal(); render(); window.scrollTo(0,0); },
+
+  login(){
+    const name = document.getElementById('login-company').value.trim();
+    if(name) DB.empresa.nome = name;
+    try{ sessionStorage.setItem('sinucakys_session','1'); }catch(e){}
+    SESSION = true; saveDB(); render();
+  },
+  logout(){
+    try{ sessionStorage.removeItem('sinucakys_session'); }catch(e){}
+    SESSION = false; render();
+  },
+
+  openModal(html, wide){
+    const box = document.getElementById('modal-box-wrap');
+    box.innerHTML = '<div class="modal-box'+(wide?' wide':'')+'">'+html+'</div>';
+    document.getElementById('modal-root').classList.add('open');
+  },
+  closeModal(){ document.getElementById('modal-root').classList.remove('open'); document.getElementById('modal-box-wrap').innerHTML=''; },
+
+  toggleMobileMenu(){
+    let el = document.getElementById('mobile-drawer');
+    if(el){ el.remove(); return; }
+    el = document.createElement('div');
+    el.id='mobile-drawer';
+    el.style.cssText='position:fixed;inset:0;z-index:90;background:rgba(10,16,12,.45);';
+    el.onclick = (e)=>{ if(e.target===el) el.remove(); };
+    el.innerHTML = '<div style="position:absolute;top:0;left:0;bottom:0;width:78%;max-width:280px;background:var(--surface);padding:16px;overflow-y:auto;">'
+      + renderSidebarInner(true) + '</div>';
+    document.body.appendChild(el);
+  },
+
+  /* ---------- PRODUTOS ---------- */
+  formProduto(id){
+    const p = id ? DB.produtos.find(x=>x.id===id) : null;
+    const html = '<div class="modal-head"><h3 class="section-title">'+(p?'Editar produto':'Novo produto')+'</h3>'
+      +'<button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field"><label>Nome do produto</label><input id="pf-nome" value="'+esc(p?p.nome:'')+'" placeholder="Ex: Arroz 5kg"></div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Categoria</label><input id="pf-cat" value="'+esc(p?p.categoria:'')+'" placeholder="Ex: Alimentação"></div>'
+      +'<div class="field"><label>Unidade</label><input id="pf-un" value="'+esc(p?p.unidade:'un')+'" placeholder="un / kg / saco"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Preço de compra (Kz)</label><input id="pf-pc" type="number" min="0" value="'+(p?p.precoCompra:'')+'"></div>'
+      +'<div class="field"><label>Preço de venda (Kz)</label><input id="pf-pv" type="number" min="0" value="'+(p?p.precoVenda:'')+'"></div>'
+      +'</div>'
+      +'<div class="field-row">'
+      +'<div class="field"><label>Stock actual</label><input id="pf-st" type="number" min="0" value="'+(p?p.stock:0)+'"></div>'
+      +'<div class="field"><label>Stock mínimo</label><input id="pf-stm" type="number" min="0" value="'+(p?p.stockMin:5)+'"></div>'
+      +'</div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.saveProduto('+(p?"'"+p.id+"'":'null')+')">Guardar</button></div>';
+    this.openModal(html);
+  },
+  saveProduto(id){
+    const nome = document.getElementById('pf-nome').value.trim();
+    if(!nome){ toast('Indica o nome do produto.', 'warn'); return; }
+    const data = {
+      nome, categoria: document.getElementById('pf-cat').value.trim() || 'Geral',
+      unidade: document.getElementById('pf-un').value.trim() || 'un',
+      precoCompra: Number(document.getElementById('pf-pc').value)||0,
+      precoVenda: Number(document.getElementById('pf-pv').value)||0,
+      stock: Number(document.getElementById('pf-st').value)||0,
+      stockMin: Number(document.getElementById('pf-stm').value)||0,
+    };
+    if(id){ Object.assign(DB.produtos.find(p=>p.id===id), data); toast('Produto actualizado.'); }
+    else{ DB.produtos.push(Object.assign({id:uid()}, data)); toast('Produto criado.'); }
+    saveDB(); this.closeModal(); render();
+  },
+  deleteProduto(id){
+    if(!confirm('Remover este produto?')) return;
+    DB.produtos = DB.produtos.filter(p=>p.id!==id); saveDB(); render(); toast('Produto removido.');
+  },
+
+  /* ---------- CLIENTES ---------- */
+  formCliente(id){
+    const c = id ? DB.clientes.find(x=>x.id===id) : null;
+    const html = '<div class="modal-head"><h3 class="section-title">'+(c?'Editar cliente':'Novo cliente')+'</h3>'
+      +'<button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field"><label>Nome / Empresa</label><input id="cf-nome" value="'+esc(c?c.nome:'')+'"></div>'
+      +'<div class="field-row"><div class="field"><label>NIF</label><input id="cf-nif" value="'+esc(c?c.nif:'')+'"></div>'
+      +'<div class="field"><label>Telefone</label><input id="cf-tel" value="'+esc(c?c.telefone:'')+'"></div></div>'
+      +'<div class="field"><label>Email</label><input id="cf-email" value="'+esc(c?c.email:'')+'"></div>'
+      +'<div class="field"><label>Endereço</label><input id="cf-end" value="'+esc(c?c.endereco:'')+'"></div>'
+      +'<div class="field-row"><div class="field"><label>Município</label><input id="cf-mun" value="'+esc(c?c.municipio:'')+'"></div>'
+      +'<div class="field"><label>Província</label><input id="cf-prov" value="'+esc(c?c.provincia:'Luanda')+'"></div></div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.saveCliente('+(c?"'"+c.id+"'":'null')+')">Guardar</button></div>';
+    this.openModal(html);
+  },
+  saveCliente(id){
+    const nome = document.getElementById('cf-nome').value.trim();
+    if(!nome){ toast('Indica o nome do cliente.', 'warn'); return; }
+    const data = { nome, nif: document.getElementById('cf-nif').value.trim(), telefone: document.getElementById('cf-tel').value.trim(),
+      email: document.getElementById('cf-email').value.trim(), endereco: document.getElementById('cf-end').value.trim(),
+      municipio: document.getElementById('cf-mun').value.trim(), provincia: document.getElementById('cf-prov').value.trim() };
+    if(id){ Object.assign(DB.clientes.find(c=>c.id===id), data); toast('Cliente actualizado.'); }
+    else{ DB.clientes.push(Object.assign({id:uid(), totalComprado:0, divida:0}, data)); toast('Cliente criado.'); }
+    saveDB(); this.closeModal(); render();
+  },
+
+  /* ---------- FORNECEDORES ---------- */
+  formFornecedor(id){
+    const f = id ? DB.fornecedores.find(x=>x.id===id) : null;
+    const html = '<div class="modal-head"><h3 class="section-title">'+(f?'Editar fornecedor':'Novo fornecedor')+'</h3>'
+      +'<button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field"><label>Nome / Empresa</label><input id="ff-nome" value="'+esc(f?f.nome:'')+'"></div>'
+      +'<div class="field-row"><div class="field"><label>NIF</label><input id="ff-nif" value="'+esc(f?f.nif:'')+'"></div>'
+      +'<div class="field"><label>Telefone</label><input id="ff-tel" value="'+esc(f?f.telefone:'')+'"></div></div>'
+      +'<div class="field"><label>Email</label><input id="ff-email" value="'+esc(f?f.email:'')+'"></div>'
+      +'<div class="field"><label>Produtos fornecidos</label><input id="ff-prod" value="'+esc(f?f.produtos:'')+'"></div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.saveFornecedor('+(f?"'"+f.id+"'":'null')+')">Guardar</button></div>';
+    this.openModal(html);
+  },
+  saveFornecedor(id){
+    const nome = document.getElementById('ff-nome').value.trim();
+    if(!nome){ toast('Indica o nome do fornecedor.', 'warn'); return; }
+    const data = { nome, nif: document.getElementById('ff-nif').value.trim(), telefone: document.getElementById('ff-tel').value.trim(),
+      email: document.getElementById('ff-email').value.trim(), produtos: document.getElementById('ff-prod').value.trim() };
+    if(id){ Object.assign(DB.fornecedores.find(f=>f.id===id), data); toast('Fornecedor actualizado.'); }
+    else{ DB.fornecedores.push(Object.assign({id:uid()}, data)); toast('Fornecedor criado.'); }
+    saveDB(); this.closeModal(); render();
+  },
+
+  /* ---------- VENDA ---------- */
+  _saleLines: [],
+  formVenda(){
+    this._saleLines = [{produtoId: DB.produtos[0] ? DB.produtos[0].id : '', qtd:1}];
+    this.openModal(this.saleModalHtml(), true);
+  },
+  saleModalHtml(){
+    const clientesOpts = DB.clientes.map(c=>'<option value="'+c.id+'">'+esc(c.nome)+'</option>').join('');
+    let linesHtml = this._saleLines.map((ln, idx)=>{
+      const prodOpts = DB.produtos.map(p=>'<option value="'+p.id+'" '+(p.id===ln.produtoId?'selected':'')+'>'+esc(p.nome)+' — '+kz(p.precoVenda)+'</option>').join('');
+      return '<div class="line-item">'
+        +'<div><label>Produto/Serviço</label><select onchange="App.saleLineChange('+idx+',\'produtoId\',this.value)">'+prodOpts+'</select></div>'
+        +'<div><label>Qtd</label><input type="number" min="1" value="'+ln.qtd+'" onchange="App.saleLineChange('+idx+',\'qtd\',this.value)"></div>'
+        +'<div><label>Subtotal</label><input disabled value="'+kz(this.saleLineSubtotal(ln))+'"></div>'
+        +'<button class="btn btn-ghost btn-sm" style="margin-bottom:1px" onclick="App.removeSaleLine('+idx+')" title="Remover">'+icon('trash')+'</button>'
+        +'</div>';
+    }).join('');
+    const total = this._saleLines.reduce((s,ln)=>s+this.saleLineSubtotal(ln),0);
+    return '<div class="modal-head"><h3 class="section-title">Nova venda</h3><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field-row"><div class="field"><label>Cliente</label><select id="vf-cliente">'+clientesOpts+'</select></div>'
+      +'<div class="field"><label>Forma de pagamento</label><select id="vf-pag"><option>Dinheiro</option><option>Multicaixa Express</option><option>Transferência</option><option>Crédito</option></select></div></div>'
+      +'<div id="sale-lines">'+linesHtml+'</div>'
+      +'<button class="btn btn-sm" onclick="App.addSaleLine()">'+icon('plus')+' Adicionar produto</button>'
+      +'<div class="line-total-row"><span style="color:var(--text-muted);align-self:center;">Total</span><span class="amt">'+kz(total)+'</span></div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.submitVenda()">'+icon('check')+' Concluir venda</button></div>';
+  },
+  saleLineSubtotal(ln){ const p = DB.produtos.find(x=>x.id===ln.produtoId); return p ? p.precoVenda*ln.qtd : 0; },
+  addSaleLine(){ this._saleLines.push({produtoId: DB.produtos[0]?DB.produtos[0].id:'', qtd:1}); this.refreshSaleModal(); },
+  removeSaleLine(idx){ if(this._saleLines.length<=1) return; this._saleLines.splice(idx,1); this.refreshSaleModal(); },
+  saleLineChange(idx, field, val){ this._saleLines[idx][field] = field==='qtd' ? Math.max(1, Number(val)||1) : val; this.refreshSaleModal(); },
+  refreshSaleModal(){
+    const cliente = document.getElementById('vf-cliente') ? document.getElementById('vf-cliente').value : null;
+    const pag = document.getElementById('vf-pag') ? document.getElementById('vf-pag').value : null;
+    document.getElementById('modal-box-wrap').innerHTML = '<div class="modal-box wide">'+this.saleModalHtml()+'</div>';
+    if(cliente) document.getElementById('vf-cliente').value = cliente;
+    if(pag) document.getElementById('vf-pag').value = pag;
+  },
+  submitVenda(){
+    const clienteId = document.getElementById('vf-cliente').value;
+    const pagamento = document.getElementById('vf-pag').value;
+    const cliente = DB.clientes.find(c=>c.id===clienteId);
+    // check stock
+    for(const ln of this._saleLines){
+      const p = DB.produtos.find(x=>x.id===ln.produtoId);
+      if(p && p.stock < ln.qtd && p.stockMin >= 0 && p.stock !== 9999){
+        if(!confirm('Stock insuficiente para "'+p.nome+'" (disponível: '+p.stock+'). Continuar mesmo assim?')) return;
+      }
+    }
+    const itens = this._saleLines.map(ln=>{
+      const p = DB.produtos.find(x=>x.id===ln.produtoId);
+      return {produtoId:p.id, nome:p.nome, qtd:ln.qtd, preco:p.precoVenda};
+    });
+    const total = itens.reduce((s,i)=>s+i.qtd*i.preco,0);
+    // decrement stock
+    itens.forEach(i=>{ const p = DB.produtos.find(x=>x.id===i.produtoId); if(p && p.stock!==9999) p.stock = Math.max(0, p.stock-i.qtd); });
+    DB.contadores.factura++;
+    const numero = 'FT '+new Date().getFullYear()+'/'+String(DB.contadores.factura).padStart(4,'0');
+    const data = todayISO();
+    const saleId = uid();
+    DB.vendas.push({id:saleId, data, clienteId, itens, total, pagamento, facturaNumero:numero});
+    DB.facturas.push({id:uid(), numero, data, clienteId, itens, total, estado: pagamento==='Crédito'?'Por cobrar':'Paga'});
+    if(pagamento==='Crédito'){
+      if(cliente) cliente.divida = (cliente.divida||0)+total;
+    } else {
+      DB.caixa.movimentos.push({id:uid(), data, tipo:'entrada', categoria:'Venda', descricao:'Venda '+numero+(cliente?' — '+cliente.nome:''), valor:total});
+    }
+    if(cliente) cliente.totalComprado = (cliente.totalComprado||0)+total;
+    // low stock notification
+    itens.forEach(i=>{ const p = DB.produtos.find(x=>x.id===i.produtoId); if(p && p.stock<=p.stockMin && p.stock!==9999) toast('Stock baixo: '+p.nome+' ('+p.stock+' restantes)', 'warn'); });
+    saveDB(); this.closeModal();
+    toast('Venda registada — factura '+numero+' emitida.');
+    DB.route='facturas'; render();
+  },
+
+  /* ---------- COMPRA ---------- */
+  _buyLines: [],
+  formCompra(){
+    this._buyLines = [{produtoId: DB.produtos[0]?DB.produtos[0].id:'', qtd:1, custo: DB.produtos[0]?DB.produtos[0].precoCompra:0}];
+    this.openModal(this.buyModalHtml(), true);
+  },
+  buyModalHtml(){
+    const fornOpts = DB.fornecedores.map(f=>'<option value="'+f.id+'">'+esc(f.nome)+'</option>').join('') || '<option value="">Sem fornecedores</option>';
+    let linesHtml = this._buyLines.map((ln,idx)=>{
+      const prodOpts = DB.produtos.map(p=>'<option value="'+p.id+'" '+(p.id===ln.produtoId?'selected':'')+'>'+esc(p.nome)+'</option>').join('');
+      return '<div class="line-item">'
+        +'<div><label>Produto</label><select onchange="App.buyLineChange('+idx+',\'produtoId\',this.value)">'+prodOpts+'</select></div>'
+        +'<div><label>Qtd</label><input type="number" min="1" value="'+ln.qtd+'" onchange="App.buyLineChange('+idx+',\'qtd\',this.value)"></div>'
+        +'<div><label>Custo unit. (Kz)</label><input type="number" min="0" value="'+ln.custo+'" onchange="App.buyLineChange('+idx+',\'custo\',this.value)"></div>'
+        +'<button class="btn btn-ghost btn-sm" style="margin-bottom:1px" onclick="App.removeBuyLine('+idx+')">'+icon('trash')+'</button>'
+        +'</div>';
+    }).join('');
+    const total = this._buyLines.reduce((s,ln)=>s+ln.qtd*ln.custo,0);
+    return '<div class="modal-head"><h3 class="section-title">Registar compra</h3><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field-row"><div class="field"><label>Fornecedor</label><select id="cpf-forn">'+fornOpts+'</select></div>'
+      +'<div class="field"><label>Forma de pagamento</label><select id="cpf-pag"><option>Dinheiro</option><option>Transferência</option><option>Crédito</option></select></div></div>'
+      +'<div id="buy-lines">'+linesHtml+'</div>'
+      +'<button class="btn btn-sm" onclick="App.addBuyLine()">'+icon('plus')+' Adicionar produto</button>'
+      +'<div class="line-total-row"><span style="color:var(--text-muted);align-self:center;">Total</span><span class="amt">'+kz(total)+'</span></div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.submitCompra()">'+icon('check')+' Registar compra</button></div>';
+  },
+  addBuyLine(){ this._buyLines.push({produtoId: DB.produtos[0]?DB.produtos[0].id:'', qtd:1, custo:0}); this.refreshBuyModal(); },
+  removeBuyLine(idx){ if(this._buyLines.length<=1) return; this._buyLines.splice(idx,1); this.refreshBuyModal(); },
+  buyLineChange(idx, field, val){ this._buyLines[idx][field] = field==='produtoId' ? val : Math.max(0, Number(val)||0); this.refreshBuyModal(); },
+  refreshBuyModal(){
+    const forn = document.getElementById('cpf-forn') ? document.getElementById('cpf-forn').value : null;
+    const pag = document.getElementById('cpf-pag') ? document.getElementById('cpf-pag').value : null;
+    document.getElementById('modal-box-wrap').innerHTML = '<div class="modal-box wide">'+this.buyModalHtml()+'</div>';
+    if(forn) document.getElementById('cpf-forn').value = forn;
+    if(pag) document.getElementById('cpf-pag').value = pag;
+  },
+  submitCompra(){
+    const fornecedorId = document.getElementById('cpf-forn').value;
+    const fornecedor = DB.fornecedores.find(f=>f.id===fornecedorId);
+    const pagamento = document.getElementById('cpf-pag').value;
+    const itens = this._buyLines.map(ln=>{ const p = DB.produtos.find(x=>x.id===ln.produtoId); return {produtoId:p.id, nome:p.nome, qtd:ln.qtd, custo:ln.custo}; });
+    const total = itens.reduce((s,i)=>s+i.qtd*i.custo,0);
+    itens.forEach(i=>{ const p = DB.produtos.find(x=>x.id===i.produtoId); if(p){ p.stock += i.qtd; if(i.custo>0) p.precoCompra = i.custo; } });
+    const data = todayISO();
+    DB.compras.push({id:uid(), data, fornecedorId, itens, total, pagamento});
+    if(pagamento==='Crédito' && fornecedor){ fornecedor.divida = (fornecedor.divida||0)+total; }
+    else{ DB.caixa.movimentos.push({id:uid(), data, tipo:'saida', categoria:'Compra', descricao:'Compra'+(fornecedor?' — '+fornecedor.nome:''), valor:total}); }
+    saveDB(); this.closeModal(); toast('Compra registada e stock actualizado.'); render();
+  },
+
+  /* ---------- CAIXA ---------- */
+  formMovimento(){
+    const html = '<div class="modal-head"><h3 class="section-title">Novo movimento de caixa</h3><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body">'
+      +'<div class="field"><label>Tipo</label><select id="mf-tipo"><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>'
+      +'<div class="field"><label>Categoria</label><select id="mf-cat"><option>Renda</option><option>Água</option><option>Energia</option><option>Salários</option><option>Transporte</option><option>Outros rendimentos</option><option>Outros custos</option></select></div>'
+      +'<div class="field"><label>Descrição</label><input id="mf-desc" placeholder="Ex: Pagamento de renda de Setembro"></div>'
+      +'<div class="field"><label>Valor (Kz)</label><input id="mf-val" type="number" min="0"></div>'
+      +'</div>'
+      +'<div class="modal-foot"><button class="btn" onclick="App.closeModal()">Cancelar</button>'
+      +'<button class="btn btn-primary" onclick="App.saveMovimento()">Registar</button></div>';
+    this.openModal(html);
+  },
+  saveMovimento(){
+    const valor = Number(document.getElementById('mf-val').value)||0;
+    if(valor<=0){ toast('Indica um valor válido.', 'warn'); return; }
+    DB.caixa.movimentos.push({id:uid(), data:todayISO(), tipo:document.getElementById('mf-tipo').value,
+      categoria:document.getElementById('mf-cat').value, descricao:document.getElementById('mf-desc').value.trim()||'—', valor});
+    saveDB(); this.closeModal(); toast('Movimento registado.'); render();
+  },
+
+  /* ---------- FACTURA VIEW/PRINT ---------- */
+  viewFactura(id){
+    const f = DB.facturas.find(x=>x.id===id);
+    const cliente = DB.clientes.find(c=>c.id===f.clienteId) || {nome:'Cliente Balcão', nif:'-'};
+    const rows = f.itens.map(i=>'<tr><td>'+esc(i.nome)+'</td><td style="text-align:center">'+i.qtd+'</td><td style="text-align:right">'+kz(i.preco)+'</td><td style="text-align:right">'+kz(i.qtd*i.preco)+'</td></tr>').join('');
+    const wa = encodeURIComponent('Olá '+cliente.nome+', segue a factura '+f.numero+' no valor de '+kz(f.total)+'. Obrigado pela preferência — '+DB.empresa.nome+'.');
+    const mailBody = encodeURIComponent('Segue em anexo a factura '+f.numero+', no valor de '+kz(f.total)+'.\\n\\n'+DB.empresa.nome);
+    const html = '<div class="modal-head"><h3 class="section-title">Factura '+esc(f.numero)+'</h3><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+      +'<div class="modal-body" id="print-area">'
+      +'<div class="invoice-sheet">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">'
+      +'<div><div style="font-family:Sora,sans-serif;font-weight:700;font-size:18px;color:#1B4332;">'+esc(DB.empresa.nome)+'</div>'
+      +'<div style="font-size:12px;color:#5B6B60;">NIF: '+esc(DB.empresa.nif)+'</div></div>'
+      +'<div style="text-align:right"><div style="font-weight:700;">'+esc(f.numero)+'</div><div style="font-size:12px;color:#5B6B60;">'+fmtDate(f.data)+'</div>'
+      +'<span class="pill '+(f.estado==='Paga'?'pill-success':'pill-warning')+'" style="margin-top:4px;">'+esc(f.estado)+'</span></div></div>'
+      +'<div style="font-size:12px;color:#5B6B60;margin-bottom:4px;">Cliente</div>'
+      +'<div style="margin-bottom:16px;"><strong>'+esc(cliente.nome)+'</strong><br>NIF: '+esc(cliente.nif||'-')+'</div>'
+      +'<table><thead><tr><th>Produto/Serviço</th><th style="text-align:center">Qtd</th><th style="text-align:right">Preço</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +'<div style="display:flex;justify-content:flex-end;margin-top:14px;"><div style="font-family:Sora,sans-serif;font-weight:700;font-size:18px;">Total: '+kz(f.total)+'</div></div>'
+      +'<div style="margin-top:22px;font-size:11px;color:#8a9690;">Documento emitido pela plataforma SINUCAKYS — protótipo de demonstração, sem valor fiscal.</div>'
+      +'</div></div>'
+      +'<div class="modal-foot" style="flex-wrap:wrap;">'
+      +'<a class="btn btn-sm" href="https://wa.me/?text='+wa+'" target="_blank" rel="noopener">'+icon('whatsapp')+' WhatsApp</a>'
+      +'<a class="btn btn-sm" href="mailto:'+esc(cliente.email||'')+'?subject=Factura%20'+encodeURIComponent(f.numero)+'&body='+mailBody+'">'+icon('mail')+' Email</a>'
+      +'<button class="btn btn-sm btn-primary" onclick="window.print()">'+icon('print')+' Imprimir / PDF</button>'
+      +'</div>';
+    this.openModal(html, true);
+  },
+
+  markPaid(facturaId){
+    const f = DB.facturas.find(x=>x.id===facturaId);
+    if(!f || f.estado==='Paga') return;
+    f.estado='Paga';
+    const cliente = DB.clientes.find(c=>c.id===f.clienteId);
+    if(cliente) cliente.divida = Math.max(0,(cliente.divida||0)-f.total);
+    DB.caixa.movimentos.push({id:uid(), data:todayISO(), tipo:'entrada', categoria:'Recebimento', descricao:'Recebimento factura '+f.numero, valor:f.total});
+    saveDB(); render(); toast('Factura marcada como paga.');
+  },
+
+  toggleCaixa(){
+    DB.caixa.aberto = !DB.caixa.aberto;
+    saveDB(); render(); toast(DB.caixa.aberto ? 'Caixa aberto.' : 'Caixa fechado.');
+  },
+
+  exportNotice(){ toast('Exportação para PDF/Excel real disponível na versão de produção.', 'warn'); },
+
+  showInfo(){
+    const html = '<div class="modal-head"><h3 class="section-title">Sobre este protótipo</h3><button class="btn btn-ghost btn-sm" onclick="App.closeModal()">'+icon('close')+'</button></div>'
+    +'<div class="modal-body" style="font-size:13.5px;line-height:1.6;color:var(--text);">'
+    +'<p>Este é um <strong>protótipo funcional</strong> do SINUCAKYS a correr inteiramente no teu browser — os dados ficam guardados apenas neste dispositivo (localStorage), sem servidor.</p>'
+    +'<p>Demonstra o fluxo integrado descrito no briefing: uma venda gera a factura, actualiza o estoque, o caixa, o histórico do cliente e os gráficos automaticamente.</p>'
+    +'<p style="color:var(--text-muted);">Para produção seria necessário construir: backend (NestJS + PostgreSQL) com isolamento multiempresa real, autenticação segura com 2FA, aplicações Android/iPhone nativas, certificação fiscal junto da AGT (SAF-T), integração com Multicaixa Express e demais gateways, e o painel do Super Administrador.</p>'
+    +'</div><div class="modal-foot"><button class="btn btn-primary" onclick="App.closeModal()">Entendido</button></div>';
+    this.openModal(html);
+  },
+};
+window.App = App;
+
+/* ---------------- COMPUTED HELPERS ---------------- */
+function saldoCaixa(){
+  return (DB.caixa.saldoInicial||0) + DB.caixa.movimentos.reduce((s,m)=>s+(m.tipo==='entrada'?m.valor:-m.valor),0);
+}
+function vendasHoje(){ return DB.vendas.filter(v=>v.data===todayISO()).reduce((s,v)=>s+v.total,0); }
+function vendasMes(){ const m = todayISO().slice(0,7); return DB.vendas.filter(v=>v.data.slice(0,7)===m).reduce((s,v)=>s+v.total,0); }
+function produtosBaixoStock(){ return DB.produtos.filter(p=>p.stock<=p.stockMin && p.stock!==9999); }
+function dividasReceber(){ return DB.clientes.reduce((s,c)=>s+(c.divida||0),0); }
+function despesasMes(){ const m = todayISO().slice(0,7); return DB.caixa.movimentos.filter(mv=>mv.tipo==='saida' && mv.data.slice(0,7)===m).reduce((s,mv)=>s+mv.valor,0); }
+function receitasMes(){ const m = todayISO().slice(0,7); return DB.caixa.movimentos.filter(mv=>mv.tipo==='entrada' && mv.data.slice(0,7)===m).reduce((s,mv)=>s+mv.valor,0); }
+
+/* ---------------- NAV CONFIG ---------------- */
+const NAV = [
+  {group:'Principal', items:[
+    {route:'dashboard', label:'Dashboard', icon:'grid'},
+  ]},
+  {group:'Operações', items:[
+    {route:'vendas', label:'Vendas', icon:'cart'},
+    {route:'facturas', label:'Facturas', icon:'doc'},
+    {route:'compras', label:'Compras', icon:'bag'},
+    {route:'estoque', label:'Estoque', icon:'box'},
+    {route:'caixa', label:'Caixa', icon:'wallet'},
+  ]},
+  {group:'Relacionamentos', items:[
+    {route:'clientes', label:'Clientes', icon:'users'},
+    {route:'fornecedores', label:'Fornecedores', icon:'truck'},
+  ]},
+  {group:'Análise', items:[
+    {route:'relatorios', label:'Relatórios', icon:'chart'},
+  ]},
+];
+const BOTTOM_NAV = [
+  {route:'dashboard', label:'Início', icon:'grid'},
+  {route:'vendas', label:'Vendas', icon:'cart'},
+  {route:'estoque', label:'Estoque', icon:'box'},
+  {route:'caixa', label:'Caixa', icon:'wallet'},
+];
+
+/* ---------------- RENDER: SHELL ---------------- */
+function renderSidebarInner(mobile){
+  let html = '<div class="brand">'
+    +'<div class="brand-mark">'+icon('logo')+'</div>'
+    +'<div><div class="brand-name">SINUCAKYS</div><div class="brand-sub">Gestão empresarial</div></div>'
+    +'</div><nav class="sidenav">';
+  NAV.forEach(g=>{
+    html += '<div class="nav-group-label">'+g.group+'</div>';
+    g.items.forEach(it=>{
+      html += '<div class="nav-item'+(DB.route===it.route?' active':'')+'" onclick="'+(mobile?"document.getElementById('mobile-drawer').remove();":'')+'App.nav(\''+it.route+'\')">'+icon(it.icon)+'<span>'+it.label+'</span></div>';
+    });
+  });
+  html += '</nav><div class="sidebar-foot"><div class="company-chip"><span class="dot"></span><div style="min-width:0;"><div style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(DB.empresa.nome)+'</div><div style="font-size:10.5px;color:var(--text-muted);">Plano Profissional</div></div></div>'
+    +'<div class="nav-item" style="margin-top:8px;" onclick="App.logout()">'+icon('logout')+'<span>Sair</span></div></div>';
+  return html;
+}
+
+function renderShellOpen(contentHtml){
+  const bn = BOTTOM_NAV.map(it=>'<div class="bn-item'+(DB.route===it.route?' active':'')+'" onclick="App.nav(\''+it.route+'\')">'+icon(it.icon)+'<span>'+it.label+'</span></div>').join('');
+  return '<div id="shell">'
+    +'<aside id="sidebar">'+renderSidebarInner(false)+'</aside>'
+    +'<div id="main">'
+    +'<div id="topbar">'
+    +'<div style="display:flex;align-items:center;gap:10px;">'
+    +'<button class="btn btn-ghost btn-sm" id="menu-toggle" onclick="App.toggleMobileMenu()">'+icon('menu')+'</button>'
+    +'<h2 class="page-title-top" style="font-family:Sora,sans-serif;font-size:15px;font-weight:700;margin:0;">'+esc(pageTitle())+'</h2>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;">'
+    +'<button class="btn btn-ghost btn-sm" onclick="App.showInfo()" title="Sobre este protótipo">'+icon('info')+'</button>'
+    +'<button class="btn btn-ghost btn-sm" title="Notificações">'+icon('bell')+'</button>'
+    +'</div></div>'
+    +'<div id="content">'+contentHtml+'</div>'
+    +'</div>'
+    +'<div id="bottomnav">'+bn+'</div>'
+    +'</div>';
+}
+function pageTitle(){
+  const all = NAV.reduce((a,g)=>a.concat(g.items),[]);
+  const cur = all.find(i=>i.route===DB.route);
+  return cur ? cur.label : 'SINUCAKYS';
+}
+
+/* ---------------- RENDER: LOGIN ---------------- */
+function renderLogin(){
+  return '<div id="login-screen"><div class="login-card card card-pad" style="padding:30px 28px;">'
+    +'<div class="login-hero"><div class="brand-mark" style="margin-bottom:14px;">'+icon('logo')+'</div>'
+    +'<h1 style="font-size:22px;margin:0 0 4px;">Entrar no SINUCAKYS</h1>'
+    +'<p style="color:var(--text-muted);font-size:13.5px;margin:0;">A gestão da tua empresa, num só lugar.</p></div>'
+    +'<div class="field"><label>Nome da empresa</label><input id="login-company" value="'+esc(DB.empresa.nome)+'"></div>'
+    +'<div class="field"><label>Email</label><input value="demo@sinucakys.ao" disabled></div>'
+    +'<div class="field"><label>Palavra-passe</label><input type="password" value="••••••••" disabled></div>'
+    +'<button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:6px;" onclick="App.login()">Entrar</button>'
+    +'<p style="font-size:11.5px;color:var(--text-muted);margin-top:14px;text-align:center;">Protótipo de demonstração — sem autenticação real.</p>'
+    +'</div></div>';
+}
+
+/* ---------------- RENDER: DASHBOARD ---------------- */
+function renderDashboard(){
+  const lowStock = produtosBaixoStock();
+  const kpis = [
+    {label:'Vendas hoje', value:kz(vendasHoje()), icon:'cart'},
+    {label:'Facturação do mês', value:kz(vendasMes()), icon:'doc'},
+    {label:'Saldo em caixa', value:kz(saldoCaixa()), icon:'wallet'},
+    {label:'Contas a receber', value:kz(dividasReceber()), icon:'users'},
+  ];
+  const kpiHtml = kpis.map(k=>'<div class="card kpi"><div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<span class="kpi-label">'+k.label+'</span><span style="color:var(--primary);">'+icon(k.icon)+'</span></div>'
+    +'<div class="kpi-value">'+k.value+'</div></div>').join('');
+
+  const recentSales = DB.vendas.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,6);
+  const salesRows = recentSales.map(v=>{
+    const c = DB.clientes.find(x=>x.id===v.clienteId);
+    return '<tr><td>'+fmtDate(v.data)+'</td><td>'+esc(c?c.nome:'—')+'</td><td>'+esc(v.facturaNumero)+'</td><td style="text-align:right">'+kz(v.total)+'</td></tr>';
+  }).join('') || '<tr><td colspan="4" class="empty">Ainda não há vendas registadas.</td></tr>';
+
+  const lowStockHtml = lowStock.length ? lowStock.slice(0,5).map(p=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">'
+      +'<div><div style="font-size:13px;font-weight:600;">'+esc(p.nome)+'</div><div style="font-size:11.5px;color:var(--text-muted);">Mínimo: '+p.stockMin+'</div></div>'
+      +'<span class="pill pill-danger">'+p.stock+' un.</span></div>').join('')
+    : '<div class="empty">'+icon('check')+'<div>Todos os produtos com stock saudável.</div></div>';
+
+  return '<div class="page-head"><div><h1 class="page-title">Dashboard</h1><p class="page-desc">Visão geral de '+esc(DB.empresa.nome)+' — '+fmtDate(todayISO())+'</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formVenda()">'+icon('plus')+' Nova venda</button></div>'
+    +'<div class="kpi-grid">'+kpiHtml+'</div>'
+    +'<div class="grid-2">'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Vendas — últimos 7 dias</h3></div><div class="card-pad"><canvas id="chart-sales" height="150"></canvas></div></div>'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Receitas vs. despesas (mês)</h3></div><div class="card-pad"><canvas id="chart-flow" height="150"></canvas></div></div>'
+    +'</div>'
+    +'<div class="grid-2" style="margin-top:14px;">'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Vendas recentes</h3><a class="btn btn-ghost btn-sm" onclick="App.nav(\'facturas\')">Ver tudo '+icon('chevron')+'</a></div>'
+    +'<div class="scroll-x"><table><thead><tr><th>Data</th><th>Cliente</th><th>Factura</th><th style="text-align:right">Total</th></tr></thead><tbody>'+salesRows+'</tbody></table></div></div>'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Alertas de estoque</h3><a class="btn btn-ghost btn-sm" onclick="App.nav(\'estoque\')">Ver estoque '+icon('chevron')+'</a></div>'
+    +'<div class="card-pad" style="padding-top:6px;">'+lowStockHtml+'</div></div>'
+    +'</div>';
+}
+
+function mountDashboardCharts(){
+  if(typeof Chart === 'undefined') return;
+  const style = getComputedStyle(document.documentElement);
+  const primary = style.getPropertyValue('--primary').trim() || '#1B4332';
+  const border = style.getPropertyValue('--border').trim() || '#ddd';
+  const textMuted = style.getPropertyValue('--text-muted').trim() || '#666';
+  const danger = style.getPropertyValue('--danger').trim() || '#B3261E';
+
+  const days = []; const labels = [];
+  for(let i=6;i>=0;i--){ const d = daysAgoISO(i); days.push(d); const dt = new Date(d+'T00:00:00'); labels.push(dt.toLocaleDateString('pt-PT',{weekday:'short'})); }
+  const vals = days.map(d=> DB.vendas.filter(v=>v.data===d).reduce((s,v)=>s+v.total,0));
+
+  const c1 = document.getElementById('chart-sales');
+  if(c1){
+    new Chart(c1, {type:'bar', data:{labels, datasets:[{data:vals, backgroundColor:primary, borderRadius:6, maxBarThickness:34}]},
+      options:{plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}, ticks:{color:textMuted}}, y:{grid:{color:border}, ticks:{color:textMuted, callback:v=>v/1000+'k'}} }, responsive:true, maintainAspectRatio:false}});
+  }
+  const c2 = document.getElementById('chart-flow');
+  if(c2){
+    new Chart(c2, {type:'doughnut', data:{labels:['Receitas','Despesas'], datasets:[{data:[receitasMes(), despesasMes()||1], backgroundColor:[primary, danger], borderWidth:0}]},
+      options:{plugins:{legend:{position:'bottom', labels:{color:textMuted, boxWidth:10, font:{size:11}}}}, responsive:true, maintainAspectRatio:false, cutout:'65%'}});
+  }
+}
+
+/* ---------------- RENDER: VENDAS ---------------- */
+function renderVendas(){
+  const rows = DB.vendas.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(v=>{
+    const c = DB.clientes.find(x=>x.id===v.clienteId);
+    return '<tr><td>'+fmtDate(v.data)+'</td><td>'+esc(c?c.nome:'—')+'</td><td>'+esc(v.facturaNumero)+'</td><td>'+v.itens.length+' item(ns)</td>'
+      +'<td><span class="pill pill-muted">'+esc(v.pagamento)+'</span></td><td style="text-align:right">'+kz(v.total)+'</td>'
+      +'<td><button class="btn btn-ghost btn-sm" onclick="App.viewFactura(\''+(DB.facturas.find(f=>f.numero===v.facturaNumero)||{}).id+'\')">'+icon('doc')+'</button></td></tr>';
+  }).join('') || '<tr><td colspan="7" class="empty">Sem vendas ainda. Clica em "Nova venda" para começar.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Vendas</h1><p class="page-desc">Todas as vendas registadas, com actualização automática de estoque e caixa.</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formVenda()">'+icon('plus')+' Nova venda</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Data</th><th>Cliente</th><th>Factura</th><th>Itens</th><th>Pagamento</th><th style="text-align:right">Total</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: FACTURAS ---------------- */
+function renderFacturas(){
+  const rows = DB.facturas.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(f=>{
+    const c = DB.clientes.find(x=>x.id===f.clienteId);
+    const pillClass = f.estado==='Paga' ? 'pill-success' : 'pill-warning';
+    return '<tr><td>'+esc(f.numero)+'</td><td>'+fmtDate(f.data)+'</td><td>'+esc(c?c.nome:'—')+'</td>'
+      +'<td style="text-align:right">'+kz(f.total)+'</td><td><span class="pill '+pillClass+'">'+esc(f.estado)+'</span></td>'
+      +'<td style="display:flex;gap:4px;">'
+      +'<button class="btn btn-ghost btn-sm" onclick="App.viewFactura(\''+f.id+'\')">'+icon('doc')+'</button>'
+      +(f.estado!=='Paga' ? '<button class="btn btn-ghost btn-sm" title="Marcar como paga" onclick="App.markPaid(\''+f.id+'\')">'+icon('check')+'</button>' : '')
+      +'</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="empty">Ainda não há facturas emitidas.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Facturas</h1><p class="page-desc">Documentos emitidos automaticamente a partir das vendas.</p></div>'
+    +'<button class="btn" onclick="App.exportNotice()">'+icon('chart')+' Exportar</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Número</th><th>Data</th><th>Cliente</th><th style="text-align:right">Total</th><th>Estado</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: ESTOQUE ---------------- */
+function renderEstoque(){
+  const rows = DB.produtos.map(p=>{
+    const low = p.stock<=p.stockMin && p.stock!==9999;
+    return '<tr><td><strong>'+esc(p.nome)+'</strong><div style="font-size:11.5px;color:var(--text-muted)">'+esc(p.categoria)+'</div></td>'
+      +'<td>'+esc(p.unidade)+'</td><td style="text-align:right">'+kz(p.precoCompra)+'</td><td style="text-align:right">'+kz(p.precoVenda)+'</td>'
+      +'<td style="text-align:right">'+(p.stock===9999?'∞':p.stock)+'</td>'
+      +'<td>'+(low?'<span class="pill pill-danger">'+icon('alert')+' Baixo</span>':'<span class="pill pill-success">OK</span>')+'</td>'
+      +'<td style="display:flex;gap:4px;"><button class="btn btn-ghost btn-sm" onclick="App.formProduto(\''+p.id+'\')">'+icon('edit')+'</button>'
+      +'<button class="btn btn-ghost btn-sm" onclick="App.deleteProduto(\''+p.id+'\')">'+icon('trash')+'</button></td></tr>';
+  }).join('') || '<tr><td colspan="7" class="empty">Sem produtos. Adiciona o primeiro.</td></tr>';
+  const totalValor = DB.produtos.reduce((s,p)=>s+(p.stock!==9999?p.stock*p.precoCompra:0),0);
+  return '<div class="page-head"><div><h1 class="page-title">Estoque</h1><p class="page-desc">'+DB.produtos.length+' produtos · valor em stock: '+kz(totalValor)+'</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formProduto()">'+icon('plus')+' Novo produto</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Produto</th><th>Unidade</th><th style="text-align:right">Preço compra</th><th style="text-align:right">Preço venda</th><th style="text-align:right">Stock</th><th>Estado</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: CLIENTES ---------------- */
+function renderClientes(){
+  const rows = DB.clientes.map(c=>'<tr><td><strong>'+esc(c.nome)+'</strong><div style="font-size:11.5px;color:var(--text-muted)">'+esc(c.nif||'-')+'</div></td>'
+    +'<td>'+esc(c.telefone||'-')+'</td><td style="text-align:right">'+kz(c.totalComprado)+'</td>'
+    +'<td style="text-align:right">'+(c.divida>0?'<span class="pill pill-warning">'+kz(c.divida)+'</span>':'<span class="pill pill-muted">—</span>')+'</td>'
+    +'<td><button class="btn btn-ghost btn-sm" onclick="App.formCliente(\''+c.id+'\')">'+icon('edit')+'</button></td></tr>').join('')
+    || '<tr><td colspan="5" class="empty">Sem clientes registados.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Clientes</h1><p class="page-desc">'+DB.clientes.length+' clientes registados.</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formCliente()">'+icon('plus')+' Novo cliente</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Cliente</th><th>Telefone</th><th style="text-align:right">Total comprado</th><th style="text-align:right">Dívida</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: FORNECEDORES ---------------- */
+function renderFornecedores(){
+  const rows = DB.fornecedores.map(f=>'<tr><td><strong>'+esc(f.nome)+'</strong><div style="font-size:11.5px;color:var(--text-muted)">'+esc(f.nif||'-')+'</div></td>'
+    +'<td>'+esc(f.telefone||'-')+'</td><td>'+esc(f.produtos||'-')+'</td>'
+    +'<td style="text-align:right">'+(f.divida>0?'<span class="pill pill-warning">'+kz(f.divida)+'</span>':'<span class="pill pill-muted">—</span>')+'</td>'
+    +'<td><button class="btn btn-ghost btn-sm" onclick="App.formFornecedor(\''+f.id+'\')">'+icon('edit')+'</button></td></tr>').join('')
+    || '<tr><td colspan="5" class="empty">Sem fornecedores registados.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Fornecedores</h1><p class="page-desc">'+DB.fornecedores.length+' fornecedores registados.</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formFornecedor()">'+icon('plus')+' Novo fornecedor</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Fornecedor</th><th>Telefone</th><th>Produtos fornecidos</th><th style="text-align:right">Dívida</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: COMPRAS ---------------- */
+function renderCompras(){
+  const rows = DB.compras.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(c=>{
+    const f = DB.fornecedores.find(x=>x.id===c.fornecedorId);
+    return '<tr><td>'+fmtDate(c.data)+'</td><td>'+esc(f?f.nome:'—')+'</td><td>'+c.itens.length+' item(ns)</td>'
+      +'<td><span class="pill pill-muted">'+esc(c.pagamento)+'</span></td><td style="text-align:right">'+kz(c.total)+'</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="empty">Sem compras registadas.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Compras</h1><p class="page-desc">Registo de compras — actualiza o estoque automaticamente.</p></div>'
+    +'<button class="btn btn-primary" onclick="App.formCompra()">'+icon('plus')+' Registar compra</button></div>'
+    +'<div class="card"><div class="scroll-x"><table><thead><tr><th>Data</th><th>Fornecedor</th><th>Itens</th><th>Pagamento</th><th style="text-align:right">Total</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: CAIXA ---------------- */
+function renderCaixa(){
+  const saldo = saldoCaixa();
+  const movs = DB.caixa.movimentos.slice().sort((a,b)=>b.data.localeCompare(a.data)).slice(0,40);
+  const rows = movs.map(m=>'<tr><td>'+fmtDate(m.data)+'</td><td>'+esc(m.categoria)+'</td><td>'+esc(m.descricao)+'</td>'
+    +'<td style="text-align:right;color:'+(m.tipo==='entrada'?'var(--success)':'var(--danger)')+';font-weight:600;">'
+    +(m.tipo==='entrada'?'+ ':'- ')+kz(m.valor)+'</td></tr>').join('') || '<tr><td colspan="4" class="empty">Sem movimentos ainda.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Caixa</h1><p class="page-desc">Estado: '
+    +(DB.caixa.aberto?'<span class="pill pill-success">Aberto</span>':'<span class="pill pill-muted">Fechado</span>')+'</p></div>'
+    +'<div style="display:flex;gap:8px;"><button class="btn" onclick="App.toggleCaixa()">'+(DB.caixa.aberto?'Fechar caixa':'Abrir caixa')+'</button>'
+    +'<button class="btn btn-primary" onclick="App.formMovimento()">'+icon('plus')+' Novo movimento</button></div></div>'
+    +'<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">'
+    +'<div class="card kpi"><span class="kpi-label">Saldo actual</span><div class="kpi-value">'+kz(saldo)+'</div></div>'
+    +'<div class="card kpi"><span class="kpi-label">Receitas do mês</span><div class="kpi-value" style="color:var(--success)">'+kz(receitasMes())+'</div></div>'
+    +'<div class="card kpi"><span class="kpi-label">Despesas do mês</span><div class="kpi-value" style="color:var(--danger)">'+kz(despesasMes())+'</div></div>'
+    +'</div>'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Movimentos recentes</h3></div><div class="scroll-x"><table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th style="text-align:right">Valor</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+}
+
+/* ---------------- RENDER: RELATORIOS ---------------- */
+function renderRelatorios(){
+  const cards = [
+    {t:'Facturação do mês', v:kz(vendasMes())},
+    {t:'Nº de vendas', v:DB.vendas.length},
+    {t:'Nº de facturas', v:DB.facturas.length},
+    {t:'Contas a receber', v:kz(dividasReceber())},
+    {t:'Despesas do mês', v:kz(despesasMes())},
+    {t:'Valor em estoque', v:kz(DB.produtos.reduce((s,p)=>s+(p.stock!==9999?p.stock*p.precoCompra:0),0))},
+  ];
+  const cardsHtml = cards.map(c=>'<div class="card kpi"><span class="kpi-label">'+c.t+'</span><div class="kpi-value">'+c.v+'</div></div>').join('');
+  const byProduct = {};
+  DB.vendas.forEach(v=>v.itens.forEach(i=>{ byProduct[i.nome]=(byProduct[i.nome]||0)+i.qtd; }));
+  const topProducts = Object.entries(byProduct).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const topRows = topProducts.map(([nome,qtd])=>'<tr><td>'+esc(nome)+'</td><td style="text-align:right">'+qtd+' unid.</td></tr>').join('') || '<tr><td colspan="2" class="empty">Sem dados suficientes.</td></tr>';
+  return '<div class="page-head"><div><h1 class="page-title">Relatórios</h1><p class="page-desc">Resumo da actividade da empresa.</p></div>'
+    +'<button class="btn" onclick="App.exportNotice()">'+icon('chart')+' Exportar PDF/Excel</button></div>'
+    +'<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:18px;">'+cardsHtml+'</div>'
+    +'<div class="card"><div class="card-head"><h3 class="section-title">Produtos mais vendidos</h3></div><div class="scroll-x"><table><thead><tr><th>Produto</th><th style="text-align:right">Quantidade vendida</th></tr></thead><tbody>'+topRows+'</tbody></table></div></div>';
+}
+
+/* ---------------- MAIN RENDER ---------------- */
+function render(){
+  const app = document.getElementById('app');
+  if(!SESSION){ app.innerHTML = renderLogin(); return; }
+  let inner;
+  switch(DB.route){
+    case 'vendas': inner = renderVendas(); break;
+    case 'facturas': inner = renderFacturas(); break;
+    case 'estoque': inner = renderEstoque(); break;
+    case 'clientes': inner = renderClientes(); break;
+    case 'fornecedores': inner = renderFornecedores(); break;
+    case 'compras': inner = renderCompras(); break;
+    case 'caixa': inner = renderCaixa(); break;
+    case 'relatorios': inner = renderRelatorios(); break;
+    default: inner = renderDashboard();
+  }
+  app.innerHTML = renderShellOpen(inner);
+  if(DB.route==='dashboard' || !DB.route) mountDashboardCharts();
+}
+
+render();
+})();
+</script>
+</body>
+</html>
